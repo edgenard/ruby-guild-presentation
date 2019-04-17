@@ -1,0 +1,21 @@
+@startuml Bowling Game 
+Game "1" *-- "many" Frame: contains
+Frame "1" *-- "1..3" Roll: contains
+
+
+class Game {
+  tally()
+  roll()
+  frames: Frame
+}
+
+class Frame {
+  rolls: Roll
+  score()
+  add_roll()
+}
+
+class Roll {
+  pins_dropped: Integer
+}
+@enduml

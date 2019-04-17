@@ -1,0 +1,50 @@
+@startuml Scoring Sequence
+actor Player
+participant Game
+participant Frames
+participant Frame
+participant Roll
+
+note right of Player
+As a user I want to be able to start a new game. 
+I want to be able to roll
+I want to be able to get the current tally.
+For game that has no strikes or spares.
+end note
+
+create Game
+Player --> Game: new
+
+
+Player -> Game: roll(5)
+
+create Frames
+Game --> Frames: roll(5)
+
+alt create new frame
+create Frame
+Frames --> Frame: new(5)
+else add roll to last frame
+Game -> Frames: roll(5)
+Frames -> Frame: add_roll(5)
+end
+
+Player -> Game: tally
+activate Game
+
+Game -> Frames: score
+Frames -> Frame: complete?
+alt any completed frame
+  loop all_frames
+    Frames -> Frame: score
+  end
+  Game <-- Frames: "score"
+  Player <-- Game: "score"
+else no completed frames
+  Game <-- Frames: "no score yet"
+  Player <-- Game: "no score yet"
+end
+deactivate Game
+
+
+@enduml

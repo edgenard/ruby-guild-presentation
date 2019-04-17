@@ -1,0 +1,53 @@
+@startuml Scoring Sequence
+actor Player
+participant Game
+participant Frames
+participant FrameFactory
+participant Frame
+
+note right of Player
+As a user I want to be able to play a game of lowball
+end note
+
+create Game
+Player --> Game: new
+
+
+Player -> Game: roll(5)
+
+create Frames
+Game --> Frames: roll(5)
+Frames --> LowBallFrameFactory: new(rolls)
+alt rolls.length == 1 and pins_dropped > 0 and pins_dropped < 10
+create PendingFrame
+LowBallFrameFactory --> PendingFrame: new(pending_roll)
+else rolls.lenght == 2 and first_roll > 0 and first_roll < 10 and second_roll > 0 and second_roll < 10 and rolls.sum <= 10
+create OpenFrame
+LowBallFrameFactory --> OpenFrame: new(first_two_rolls)
+else first_roll > 0 and first_roll < 10 and second_roll == 0
+create SpareFrame
+LowBallFrameFactory --> SpareFrame: new(spare_rolls)
+else first_roll == 0
+create StrikeFrame
+LowBallFrameFactory --> StrikeFrame: new(strike_roll)
+end
+
+Player -> Game: tally
+activate Game
+
+Game -> Frames: score
+Frames -> Frame: complete?
+alt any scoreable frame
+  loop all_frames
+    Frames -> Frame: score
+  end
+  Game <-- Frames: "score"
+  Player <-- Game: "score"
+else no completed frames
+  Game <-- Frames: "no score yet"
+  Player <-- Game: "no score yet"
+end
+deactivate Game
+
+
+@enduml
